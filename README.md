@@ -45,3 +45,13 @@ For an unattended game build:
     "ReSqueezed Launcher.exe" --build "path-to-disc.iso" "path-to-install"
 
 Third-party attribution and licenses accompany the source trees. See THIRD-PARTY-NOTICES.txt.
+
+### Legal Disclaimer
+
+ReSqueezed is an independent, unofficial recompilation project intended to enable owners of the original *Juiced* game to run it on modern systems.
+
+**No original game assets are included or distributed with this project.** Users must provide their own legally obtained game files.
+
+ReSqueezed is not affiliated with, endorsed by, or sponsored by the original game's developers, publishers, or respective rights holders.
+
+The project's original source code is distributed under the MIT License. This license does not grant rights to the original game or its intellectual property.
