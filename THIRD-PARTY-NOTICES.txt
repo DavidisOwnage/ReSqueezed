@@ -1,0 +1,8 @@
+ReSqueezed uses xboxrecomp, Copyright (c) 2026 sp00nz, under the MIT license.
+Runtime modifications are based on the Takedawn fork.
+The recompiler and runtime retain their upstream licenses in source/pipeline and source/xboxrecomp.
+Third-party library notices are under source/xboxrecomp/third_party and LICENSES.
+The launcher downloads official dependencies with the versions and hashes in launcher/dependencies.json.
+Python, Capstone, LLVM-MinGW, CMake, Ninja, extract-xiso and SDL retain their respective licenses in their installed distributions.
+Source recompiler metadata consists of addresses, symbols, classification and ABI facts.
+Translated game instructions are generated from the user's disc during a local build.

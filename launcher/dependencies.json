@@ -1,0 +1,72 @@
+[
+  {
+    "Id": "python",
+    "Name": "Python 3.12.10",
+    "Url": "https://www.python.org/ftp/python/3.12.10/python-3.12.10-embed-amd64.zip",
+    "Sha256": "4acbed6dd1c744b0376e3b1cf57ce906f9dc9e95e68824584c8099a63025a3c3",
+    "Prefix": "",
+    "Destination": "tools/python",
+    "Probe": "python.exe",
+    "Size": 11133606
+  },
+  {
+    "Id": "capstone",
+    "Name": "Capstone 5.0.6",
+    "Url": "https://files.pythonhosted.org/packages/da/72/ff7894c2fb5716d9a3ce9c27ba34b29d991a11d8442d2ef0fcdc5564ba7e/capstone-5.0.6-py3-none-win_amd64.whl",
+    "Sha256": "761c3deae00b22ac697081cdae1383bb90659dd0d79387a09cf5bdbb22b17064",
+    "Prefix": "capstone/",
+    "Destination": "tools/python/Lib/site-packages/capstone",
+    "Probe": "__init__.py",
+    "Size": 1271345
+  },
+  {
+    "Id": "llvm",
+    "Name": "LLVM-MinGW 20260922 UCRT",
+    "Url": "https://github.com/mstorsjo/llvm-mingw/releases/download/20260922/llvm-mingw-20260922-ucrt-x86_64.zip",
+    "Sha256": "e3ad77d117a4bea19a7a3b333341824d79a5a371004a10e25b8504e7b3047666",
+    "Prefix": "llvm-mingw-20260922-ucrt-x86_64/",
+    "Destination": "tools/llvm-mingw-ucrt",
+    "Probe": "bin/x86_64-w64-mingw32-clang.exe",
+    "Size": 190725905
+  },
+  {
+    "Id": "cmake",
+    "Name": "CMake 3.31.6",
+    "Url": "https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6-windows-x86_64.zip",
+    "Sha256": "d163cd3ab4959b0a53fa8988f2ddbd2e6c501658201e6a154386bad9dbe4f836",
+    "Prefix": "cmake-3.31.6-windows-x86_64/",
+    "Destination": "tools/cmake",
+    "Probe": "bin/cmake.exe",
+    "Size": 46473549
+  },
+  {
+    "Id": "ninja",
+    "Name": "Ninja 1.12.1",
+    "Url": "https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip",
+    "Sha256": "f550fec705b6d6ff58f2db3c374c2277a37691678d6aba463adcbb129108467a",
+    "Prefix": "",
+    "Destination": "tools/ninja",
+    "Probe": "ninja.exe",
+    "Size": 275425
+  },
+  {
+    "Id": "xiso",
+    "Name": "XboxDev extract-xiso",
+    "Url": "https://github.com/XboxDev/extract-xiso/releases/download/build-202609111233/extract-xiso-Win64_Release.zip",
+    "Sha256": "fc891dfa72f08e3838a2f8b7ec34a8e4d61678da1cc8fee879677f00bf114ce3",
+    "Prefix": "artifacts/",
+    "Destination": "tools/extract-xiso",
+    "Probe": "extract-xiso.exe",
+    "Size": 23295
+  },
+  {
+    "Id": "sdl",
+    "Name": "SDL 3.4.16",
+    "Url": "https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-devel-3.4.16-mingw.zip",
+    "Sha256": "9828bb735cf8a007bcf0ac5aa9f01f3fcb54b7ca67c932e775c905c5d5053a60",
+    "Prefix": "SDL3-3.4.16/x86_64-w64-mingw32/",
+    "Destination": "tools/sdl3",
+    "Probe": "bin/SDL3.dll",
+    "Size": 5467717
+  }
+]

@@ -1,0 +1,88 @@
+static const size_t g_recomp_table_size = sizeof(g_recomp_table) / sizeof(g_recomp_table[0]);
+
+/* ----------------------------------------------------------------
+ * Flat, directly-indexed dispatch.
+ *
+ * Microsoft's recompiler resolves an indirect branch with a single
+ * `jmp qword ptr [r9 + r8*8]` -- one indexed load off a table keyed
+ * by guest address, no compare and no miss path. This is that, in C.
+ *
+ * The binary search below is still here and still correct. It runs
+ * ~log2(n) iterations per indirect call, which for this title is
+ * about 14 branches every time the game calls through a
+ * vtable. The flat table turns that into a bounds check and a load.
+ *
+ * Costs 8 bytes per byte of guest code span. Allocated with calloc so
+ * the untouched middle stays uncommitted rather than resident.
+ *
+ * recomp_dispatch_init() is optional by design: if it is never called,
+ * or the allocation fails, recomp_lookup silently keeps using the
+ * binary search. Nothing else in the program has to know. That is also
+ * why this does not pre-fill manual overrides -- they cannot be
+ * enumerated portably, so RECOMP_ICALL still consults
+ * recomp_lookup_manual first and this only replaces the search it used
+ * to fall through to. Behaviour is identical by construction.
+ * ---------------------------------------------------------------- */
+
+static const uint32_t g_flat_base = 0x00012000u;
+static const uint32_t g_flat_span = 0x003858AAu;
+static recomp_func_t *g_flat_table = NULL;
+
+int recomp_dispatch_init(void)
+{
+    size_t i;
+    if (g_flat_table) return 1;          /* already built */
+    if (!g_flat_span) return 0;
+    g_flat_table = (recomp_func_t *)calloc(g_flat_span,
+                                           sizeof(recomp_func_t));
+    if (!g_flat_table) return 0;         /* keep the binary search */
+    for (i = 0; i < g_recomp_table_size; i++) {
+        g_flat_table[g_recomp_table[i].xbox_va - g_flat_base] =
+            g_recomp_table[i].func;
+    }
+    return 1;
+}
+
+size_t recomp_dispatch_flat_bytes(void)
+{
+    return g_flat_table ? (size_t)g_flat_span * sizeof(recomp_func_t) : 0;
+}
+
+/* Flat index when built, binary search otherwise. */
+recomp_func_t recomp_lookup(uint32_t xbox_va)
+{
+    size_t lo, hi;
+    if (g_flat_table) {
+        uint32_t off = xbox_va - g_flat_base;
+        /* Unsigned: a VA below the base wraps to a huge offset and is
+         * rejected by the same compare, so no separate lower bound. */
+        return (off < g_flat_span) ? g_flat_table[off] : NULL;
+    }
+    lo = 0; hi = g_recomp_table_size;
+    while (lo < hi) {
+        size_t mid = lo + (hi - lo) / 2;
+        if (g_recomp_table[mid].xbox_va < xbox_va)
+            lo = mid + 1;
+        else if (g_recomp_table[mid].xbox_va > xbox_va)
+            hi = mid;
+        else
+            return g_recomp_table[mid].func;
+    }
+    return NULL;
+}
+
+/* Get the number of registered functions */
+size_t recomp_get_count(void)
+{
+    return g_recomp_table_size;
+}
+
+/* Call all registered functions (for bulk testing) */
+size_t recomp_call_all(void)
+{
+    size_t i;
+    for (i = 0; i < g_recomp_table_size; i++) {
+        g_recomp_table[i].func();
+    }
+    return g_recomp_table_size;
+}
