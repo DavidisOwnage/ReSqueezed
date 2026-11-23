@@ -1,6 +1,6 @@
 # ReSqueezed
 
-An unofficial Windows x64 launcher and compatibility runtime for the original Xbox retail release of Juiced.
+An unofficial Windows x64 launcher and compatibility runtime for the original Xbox retail release of Juiced. Big thanks to sp00nznet for XboxRecomp
 
 ## Build your game
 
