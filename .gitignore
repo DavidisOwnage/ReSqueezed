@@ -4,6 +4,8 @@
 /saves/
 /save-backups/
 /cache/
+/recompdata/
+/.juiced-save.lock
 /source/ReSqueezed/src/recomp/gen/
 .resqueezed-build-*/
 *.exe

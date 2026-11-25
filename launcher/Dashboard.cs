@@ -69,7 +69,7 @@ internal sealed partial class BuilderWindow
         brand.Paint += (sender, e) => {
             DrawLogo(e.Graphics, new Rectangle(5, 7, 104, 53));
             TextAt(e.Graphics, "Launcher", 119, 16, 11, FontStyle.Bold, Light, 145);
-            TextAt(e.Graphics, "v0.1a", 120, 37, 9, FontStyle.Regular, Gold, 75);
+            TextAt(e.Graphics, "v" + Builder.Release, 120, 37, 9, FontStyle.Regular, Gold, 75);
         };
         header.Controls.Add(brand, 0, 0);
         brand.MouseDown += DragWindow;

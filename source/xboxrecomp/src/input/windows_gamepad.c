@@ -5,6 +5,7 @@
 #include <SDL3/SDL_hints.h>
 #include <SDL3/SDL_init.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define SDL_PAD_FUNCTIONS(F) \
     F(bool, SDL_SetHint, (const char *, const char *)) \
@@ -69,7 +70,8 @@ void xbox_WindowsGamepadInit(void)
     p_SDL_SetHint(SDL_HINT_XINPUT_ENABLED, "0");
     p_SDL_SetHint(SDL_HINT_JOYSTICK_WGI, "1");
     p_SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");
-    p_SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+    p_SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS,
+        getenv("RESQUEEZED_MANAGED_PLAY") ? "0" : "1");
     p_SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");
     if (!p_SDL_InitSubSystem(SDL_INIT_GAMEPAD))
         goto unavailable;

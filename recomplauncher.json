@@ -1,0 +1,88 @@
+{
+  "$schema": "https://recomplauncher.com/schema/recomplauncher.json",
+  "format": 1,
+  "name": "ReSqueezed",
+  "repo": "DavidisOwnage/ReSqueezed",
+  "inputs": [
+    {
+      "id": "game",
+      "label": "Your Juiced Xbox USA / Europe retail ISO or extracted disc folder",
+      "formats": [
+        { "type": "file", "extensions": ["iso"] },
+        { "type": "folder" }
+      ],
+      "check": { "file": "default.xbe", "xdvdfs": "default.xbe" },
+      "dumps": [
+        { "name": "USA / Europe (En, Fr, De, Es, It)", "size": 7825162240, "crc32": "f4d8baea" }
+      ]
+    }
+  ],
+  "start": {
+    "program": ["ReSqueezed Launcher.exe"],
+    "args": ["--play", "--install={install}"]
+  },
+  "prepare": {
+    "program": ["ReSqueezed Launcher.exe"],
+    "args": ["--prepare", "--install={install}", "--game={input:game}"],
+    "label": "Build ReSqueezed from your disc. First setup downloads verified build tools.",
+    "done": [
+      "{data}/resqueezed.prepared",
+      "{install}/game/default.xbe",
+      "{install}/ReSqueezed.exe",
+      "{install}/SDL3.dll"
+    ],
+    "keeps_copy": true
+  },
+  "saves": ["{install}/saves"],
+  "folders": {
+    "game": [{ "path": "{install}/game" }],
+    "saves": [{ "path": "{install}/saves" }],
+    "logs": [{ "path": "{install}/logs" }]
+  },
+  "system": {
+    "windows": { "version": "10", "graphics": { "d3d11": "11_0" } }
+  },
+  "settings": [
+    {
+      "id": "aspect",
+      "label": "Aspect ratio",
+      "group": "Display",
+      "in": "args",
+      "help": "Choose the widescreen view or the original 4:3 aspect ratio.",
+      "choices": [
+        { "label": "Widescreen (16:9)", "args": [] },
+        { "label": "Original (4:3)", "args": ["--aspect=4:3"] }
+      ]
+    },
+    {
+      "id": "window",
+      "label": "Window mode",
+      "group": "Display",
+      "in": "args",
+      "help": "Automatic uses a window on the desktop and fullscreen in Big Picture.",
+      "choices": [
+        { "label": "Automatic", "args": [] },
+        { "label": "Windowed", "args": ["--windowed"] },
+        { "label": "Fullscreen", "args": ["--fullscreen"] }
+      ]
+    },
+    {
+      "id": "intros",
+      "label": "Opening movies",
+      "group": "Startup",
+      "in": "args",
+      "help": "Override the Faster startup setting for sessions launched here.",
+      "choices": [
+        { "label": "Use game setting", "args": [] },
+        { "label": "Play", "args": ["--play-intros"] },
+        { "label": "Skip", "args": ["--skip-intros"] }
+      ]
+    }
+  ],
+  "actions": [
+    { "id": "logs", "label": "Open logs", "open": "logs" }
+  ],
+  "exit_codes": {
+    "1": "ReSqueezed couldn't start or exited with an error. Open the latest log for details."
+  }
+}

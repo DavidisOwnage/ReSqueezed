@@ -16,12 +16,12 @@
     {
       "function": "sub_00088170",
       "before": "42cf10d72783db8893ac134a1ce506aa0f19c032f843d5dec8f3f9cf9d591588",
-      "after": "5e12438ab739a3845be9ff3fe09e9cb3d8b1bcd6993cf72bb8761bb9ad572b30",
+      "after": "1b02cfd192567a380ee03046d0a52d6470446dec0c48d0022c3ee7e521ca7904",
       "edits": [
         {
           "start": 263,
           "end": 263,
-          "text": "    /* The main menu initializes and refreshes this shared online-status field. */\n    if (MEM32(esp + 0x8C) == 0x0007C6ECu || MEM32(esp + 0x8C) == 0x0007CCA5u) {\n        static const wchar_t version[] = L\"ReSqueezed v0.1a\";\n        memcpy((void *)(g_xbox_mem_offset + esp + 0xC), version, sizeof version);\n    }\n"
+          "text": "    /* The main menu initializes and refreshes this shared online-status field. */\n    if (MEM32(esp + 0x8C) == 0x0007C6ECu || MEM32(esp + 0x8C) == 0x0007CCA5u) {\n        static const wchar_t version[] = L\"ReSqueezed v0.2a\";\n        memcpy((void *)(g_xbox_mem_offset + esp + 0xC), version, sizeof version);\n    }\n"
         }
       ]
     },
@@ -186,6 +186,18 @@
           "text": "    xbox_Nv2aNotifyWork();  /* PFB flush request */\n"
         }
       ]
+    },
+    {
+      "function": "sub_002A3F27",
+      "before": "b5c3cea6d168ad228421108cf7c42fd6f94e9159fd9df82bcb6fbb47fc2c98e6",
+      "after": "575748f775f8df9aa00f1ca73bc9ec94ad257c8de7fc204226f8bb966f8c67fe",
+      "edits": [
+        {
+          "start": 528,
+          "end": 528,
+          "text": "    /* The empty second prefetch must not discard the completed first\n       read before the stream update has submitted it for playback. */\n    if (MEM32(ebp + 4) == 0x002A3AFEu && MEM32(ebp + 0xC) == 1) {\n        uint32_t first = MEM32(edi + 0x40) + 0x10;\n        if (MEM32(first + 8) == 0xAAAA && MEM32(first + 0xC) == 0 &&\n            MEM32(first + 0x10) != 0) {\n            goto loc_002A4257;\n        }\n    }\n"
+        }
+      ]
     }
   ],
   "extra_functions": [
@@ -316,6 +328,22 @@
         "stack_frame_size": 0
       },
       "expected_sha256": "7d861f4297424b97a70400204871fdbfedc2f2fc6fa07c72a669aaa8f28b28c0"
+    },
+    {
+      "start": "0x000F26E0",
+      "end": "0x000F330A",
+      "size": 3114,
+      "name": "sub_000F26E0",
+      "category": "game_vtable",
+      "abi": {
+        "address": "0x000F26E0",
+        "calling_convention": "thiscall",
+        "estimated_params": 1,
+        "return_hint": "int",
+        "frame_type": "fpo_leaf",
+        "stack_frame_size": 80
+      },
+      "expected_sha256": "a07612d5672ebd9f9b7864eaf9f4fc6813e2040ffc920fd87cdbaef34f97636c"
     }
   ],
   "dispatch_addresses": [
@@ -2306,6 +2334,7 @@
     "0x000F2100",
     "0x000F2510",
     "0x000F2580",
+    "0x000F26E0",
     "0x000F3310",
     "0x000F35D0",
     "0x000F36E0",
@@ -12480,6 +12509,6 @@
     "0x003977FA",
     "0x003978A9"
   ],
-  "expected_function_count": 12160,
-  "expected_functions_sha256": "810c2a2754d1d6d8544c37d72821496ccda7fe526ef5f39f67c62991b3591962"
+  "expected_function_count": 12161,
+  "expected_functions_sha256": "699ea58bfc055a0658bddebd9e951155eb27b01b06ef8523bd129175a1608221"
 }

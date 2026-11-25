@@ -10,6 +10,8 @@ internal static class Builder
 {
     internal static readonly string Package = AppDomain.CurrentDomain.BaseDirectory;
     internal const string GameExe = "ReSqueezed.exe";
+    internal const string Release = "0.2a";
+    private static readonly Version GameVersion = new Version(0, 2, 0, 1);
 
     internal static string InstalledExecutable(string folder)
     {
@@ -23,9 +25,10 @@ internal static class Builder
         return File.Exists(current) ? current : Path.Combine(folder, "juiced-build.log");
     }
 
-    internal static string NewLog()
+    internal static string NewLog(string installation = null)
     {
-        string directory = Path.Combine(Path.GetTempPath(), "ReSqueezed", "Logs");
+        string directory = installation == null ? Path.Combine(Path.GetTempPath(), "ReSqueezed", "Logs")
+            : Path.Combine(installation, "logs");
         Directory.CreateDirectory(directory);
         return Path.Combine(directory, "build-" + Guid.NewGuid().ToString("N") + ".log");
     }
@@ -38,7 +41,55 @@ internal static class Builder
                File.Exists(Path.Combine(path, "game", "default.xbe"));
     }
 
-    internal static void Build(string input, string destination, string log, Action<string> status)
+    internal static bool UpdateAvailable(string folder)
+    {
+        return Installed(folder) && ReadVersion(InstalledExecutable(folder)) < GameVersion;
+    }
+
+    private static Version ReadVersion(string executable)
+    {
+        var info = FileVersionInfo.GetVersionInfo(executable);
+        return new Version(info.FileMajorPart, info.FileMinorPart, info.FileBuildPart, info.FilePrivatePart);
+    }
+
+    internal static void Update(string destination, string log, Action<string> status)
+    {
+        if (!Installed(destination))
+            throw new InvalidOperationException("Choose an existing ReSqueezed installation.");
+        if (!UpdateAvailable(destination))
+        {
+            status("This installation is already up to date.");
+            return;
+        }
+        Build(Path.Combine(destination, "game"), destination, log, status, true);
+    }
+
+    internal static void Prepare(string input, string destination, string log, Action<string> status)
+    {
+        string game = Path.Combine(destination, "game");
+        if (Directory.Exists(game))
+        {
+            status("Verifying the retained disc files…");
+            DiscValidator.ValidateFolder(game);
+            if (!String.IsNullOrEmpty(input) && !String.Equals(Path.GetFullPath(input).TrimEnd(Path.DirectorySeparatorChar),
+                game, StringComparison.OrdinalIgnoreCase))
+            {
+                if (Directory.Exists(input)) DiscValidator.ValidateFolder(input);
+                else DiscValidator.ValidateIso(input);
+            }
+            string target = Path.Combine(destination, GameExe);
+            if (File.Exists(target) && ReadVersion(target) == GameVersion && File.Exists(Path.Combine(destination, "SDL3.dll")))
+                return;
+            Build(game, destination, log, status, update: true, managed: true);
+            return;
+        }
+        if (String.IsNullOrWhiteSpace(input))
+            throw new InvalidOperationException("Select your USA / Europe Xbox ISO or extracted disc folder in Easy Setup.");
+        Build(input, destination, log, status, update: File.Exists(InstalledExecutable(destination)), managed: true);
+    }
+
+    internal static void Build(string input, string destination, string log, Action<string> status,
+        bool update = false, bool managed = false)
     {
         if (String.IsNullOrWhiteSpace(input) || String.IsNullOrWhiteSpace(destination))
             throw new InvalidOperationException("Choose an Xbox ISO or game folder and an install folder.");
@@ -52,9 +103,10 @@ internal static class Builder
         bool reuseGame = String.Equals(input.TrimEnd(Path.DirectorySeparatorChar), installedGame,
             StringComparison.OrdinalIgnoreCase);
         string[] installedFiles = { GameExe, "SDL3.dll", "SDL3-LICENSE.txt", "Play ReSqueezed.exe", "resqueezed-build.log" };
-        foreach (string file in installedFiles)
-            if (File.Exists(Path.Combine(destination, file)) || Directory.Exists(Path.Combine(destination, file)))
-                throw new InvalidOperationException("The install folder already contains " + file + ". Use Play for an existing build or choose another folder.");
+        if (!update)
+            foreach (string file in installedFiles)
+                if (File.Exists(Path.Combine(destination, file)) || Directory.Exists(Path.Combine(destination, file)))
+                    throw new InvalidOperationException("The install folder already contains " + file + ". Use Update or choose another folder.");
         if (!reuseGame && (Directory.Exists(installedGame) || File.Exists(installedGame)))
             throw new InvalidOperationException("A game folder already exists here. Select that folder as disc input or choose another install folder.");
 
@@ -84,7 +136,7 @@ internal static class Builder
         string ninja = BundledTool(@"ninja\ninja.exe");
 
         Directory.CreateDirectory(parent);
-        string workspace = Path.Combine(parent, ".resqueezed-build-" + Guid.NewGuid().ToString("N"));
+        string workspace = Path.Combine(managed ? destination : parent, ".resqueezed-build-" + Guid.NewGuid().ToString("N"));
         string install = Path.Combine(workspace, "install");
         string game = Path.Combine(install, "game");
         string objects = Path.Combine(workspace, "obj");
@@ -126,7 +178,41 @@ internal static class Builder
             status("Compiling ReSqueezed…");
             Run(cmake, workspace, log, paths, "--build", objects, "--target", "ReSqueezed",
                 "--parallel", Math.Min(Environment.ProcessorCount, 6).ToString());
-            File.Copy(Path.Combine(objects, GameExe), Path.Combine(install, GameExe));
+            string compiledGame = Path.Combine(objects, GameExe);
+            if (ReadVersion(compiledGame) != GameVersion)
+                throw new InvalidOperationException("The build produced an unexpected version of ReSqueezed.exe.");
+            if (update)
+            {
+                using (new CareerSaves(destination).Lock())
+                {
+                    // Another launcher may have finished while this one was compiling.
+                    if (managed || UpdateAvailable(destination))
+                    {
+                        if (managed && !File.Exists(Path.Combine(destination, "SDL3.dll")))
+                        {
+                            string license = Path.Combine(destination, "SDL3-LICENSE.txt");
+                            if (!File.Exists(license))
+                                File.Copy(Path.Combine(Package, "tools", "sdl3", "share", "licenses", "SDL3", "LICENSE.txt"), license);
+                            File.Move(Path.Combine(objects, "SDL3.dll"), Path.Combine(destination, "SDL3.dll"));
+                        }
+                        string target = Path.Combine(destination, GameExe);
+                        if (!reuseGame) Directory.Move(game, installedGame);
+                        try
+                        {
+                            if (File.Exists(target)) File.Replace(compiledGame, target, null);
+                            else File.Move(compiledGame, target);
+                        }
+                        catch
+                        {
+                            if (!reuseGame) Directory.Move(installedGame, game);
+                            throw;
+                        }
+                    }
+                }
+                status("ReSqueezed v" + Release + " is ready to play.");
+                return;
+            }
+            File.Copy(compiledGame, Path.Combine(install, GameExe));
             File.Copy(Path.Combine(objects, "SDL3.dll"), Path.Combine(install, "SDL3.dll"));
             File.Copy(Path.Combine(Package, "tools", "sdl3", "share", "licenses", "SDL3", "LICENSE.txt"), Path.Combine(install, "SDL3-LICENSE.txt"));
             File.Copy(ApplicationPath(), Path.Combine(install, "Play ReSqueezed.exe"));
@@ -316,7 +402,8 @@ internal static class Builder
         catch (UnauthorizedAccessException ex) { File.AppendAllText(log, "Career backup failed. " + ex.Message + Environment.NewLine); }
     }
 
-    internal static int RunGame(string installation, bool wide)
+    internal static int RunGame(string installation, bool wide, bool fullscreen = true,
+        bool? skipIntros = null, bool managed = false)
     {
         if (!Installed(installation))
             throw new InvalidOperationException("The installation is missing ReSqueezed.exe or game/default.xbe.");
@@ -335,17 +422,19 @@ internal static class Builder
             { "AUDIO_BUF_SAMPLES", "1024" }, { "AUDIO_BUF_COUNT", "8" },
             { "JUICED_AUDIO_SE_PAUSE", "1" }, { "JUICED_SCANOUT", "1" },
             { "SAVE_DIR", Path.Combine(installation, "saves") },
-            { "RENDER_SCALE", "2" }, { "PRESENT_FULLSCREEN", "1" },
+            { "RENDER_SCALE", "2" }, { "PRESENT_FULLSCREEN", fullscreen ? "1" : "0" },
             { "PRESENT_FILTER", "linear" }, { "GUEST_CPUS", "all" }, { "GFX_ANISO", "8" },
             { "D3D11_NV2A_RASTER", "1" }, { "JUICED_REVERSE_DEPTH", "1" },
             { "JUICED_W_DEPTH", "1" }, { "JUICED_EVENT_KICK", "1" },
             { "DISPLAY_WIDESCREEN", wide ? "1" : "0" },
             { "JUICED_NATIVE_WIDE", wide ? "1" : "0" },
-            { "JUICED_SKIP_INTROS", FasterStartup(installation) ? "1" : "0" },
+            { "JUICED_SKIP_INTROS", (skipIntros ?? FasterStartup(installation)) ? "1" : "0" },
             { "PRESENT_ASPECT", wide ? "16:9" : "4:3" }, { "JUICED_FOV", "0" }
         };
         foreach (var setting in settings)
             start.EnvironmentVariables["RECOMP_" + setting.Key] = setting.Value;
+        start.EnvironmentVariables.Remove("RESQUEEZED_MANAGED_PLAY");
+        if (managed) start.EnvironmentVariables["RESQUEEZED_MANAGED_PLAY"] = "1";
         string log = Path.Combine(logs, "play-" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".log");
         var saves = new CareerSaves(installation);
         int exit;

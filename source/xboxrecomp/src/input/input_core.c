@@ -26,6 +26,7 @@
 #include "recomp_env.h"
 
 #include <errno.h>
+#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -74,7 +75,8 @@ static struct rumble_port {
 } g_rumble[XBOX_MAX_CONTROLLERS];
 static xbox_rumble_params g_rumble_params = XBOX_RUMBLE_PARAMS_DEFAULT;
 static int g_rumble_params_read;
-static int g_background;        /* the window is not in front */
+static _Atomic int g_background; /* the window is not in front */
+static int g_managed_play;
 /* xbox_InputShutdown ran: the motors are off for good. The title's threads
  * run on until the process is gone (exit() does not stop them, and the USB
  * pad gives a held rumble again every 150 ms): nothing of theirs may start a
@@ -524,6 +526,16 @@ void xbox_InputInit(void)
     if (g_inited)
         return;
     g_inited = 1;
+    g_managed_play = 0;
+    const char *managed = getenv("RESQUEEZED_MANAGED_PLAY");
+    if (managed && strcmp(managed, "1") == 0) {
+        g_managed_play = 1;
+        const char *pad = getenv("RECOMPLAUNCHER_PAD");
+        if (pad && strcmp(pad, "playstation") == 0)
+            xbox_InputSetActivePad(XBOX_PAD_FAMILY_PLAYSTATION, 0);
+        else if (pad && strcmp(pad, "xbox") == 0)
+            xbox_InputSetActivePad(XBOX_PAD_FAMILY_XBOX_MODERN, 0);
+    }
     xbox_InputKeyboardSetActivityHook(keyboard_active);
     xbox_InputTouchSetActivityHook(touch_active);
     if (g_be->init)
@@ -632,6 +644,11 @@ DWORD xbox_InputGetState(DWORD dwPort, XBOX_INPUT_STATE *pState)
         }
     }
     g_sources[dwPort] = src;
+    if (rc == ERROR_SUCCESS && g_managed_play && g_background) {
+        neutral(&pState->Gamepad);
+        ++pState->dwPacketNumber;
+        return rc;
+    }
     if (rc == ERROR_SUCCESS && (g_blocked || (g_latched & (1u << dwPort)))) {
         if (!g_blocked && !any_held(&pState->Gamepad))
             g_latched &= ~(1u << dwPort);

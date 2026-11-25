@@ -64,7 +64,7 @@ internal static class Dependencies
             status("Downloading " + item.Name + "…");
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
             var request = (HttpWebRequest)WebRequest.Create(item.Url);
-            request.UserAgent = "ReSqueezed-Launcher/0.1a";
+            request.UserAgent = "ReSqueezed-Launcher/" + Builder.Release;
             request.Timeout = 60000;
             request.ReadWriteTimeout = 60000;
             using (var response = (HttpWebResponse)request.GetResponse())

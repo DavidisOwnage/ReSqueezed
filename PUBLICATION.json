@@ -13,8 +13,8 @@
   "files": [
     {
       "path": ".gitignore",
-      "bytes": 591,
-      "sha256": "f5b7f91e5243bb66aded4e76ed394d14a794da714aec19062f10ca3c18c4c78c"
+      "bytes": 625,
+      "sha256": "9c3200ce4030e408e5aa039ebe15d4a975153274ba2a3b774a85bf6ea4c50e17"
     },
     {
       "path": "launcher/assets/city-backdrop.png",
@@ -38,8 +38,8 @@
     },
     {
       "path": "launcher/Builder.cs",
-      "bytes": 17939,
-      "sha256": "66a299b490d8ea332d9b3770804350144dad3aa184aeda31182f83ef00973be3"
+      "bytes": 22554,
+      "sha256": "0155e818b5846937c9da3a127c3ebb272aa1f0c5971790037ddd782dd464f8fb"
     },
     {
       "path": "launcher/CareerSaves.cs",
@@ -48,13 +48,13 @@
     },
     {
       "path": "launcher/Dashboard.cs",
-      "bytes": 22571,
-      "sha256": "442484192b28e88fd08a7f1a065afc3e96baa92c98cdc685fdcf1485abf0fba6"
+      "bytes": 22585,
+      "sha256": "a1f0b16678ed8b434d8f6049c97e5f9c1b2633037a85b1994e4e4fb70e17e87d"
     },
     {
       "path": "launcher/Dependencies.cs",
-      "bytes": 7665,
-      "sha256": "be12035bdda39c477726b84fcccafecbbef4808aa86626acf878b64763c83437"
+      "bytes": 7679,
+      "sha256": "db76a5b94482c868d7cbbb13b469c7e789fc06c028fa24ba385ec56ba58cc654"
     },
     {
       "path": "launcher/dependencies.json",
@@ -78,18 +78,23 @@
     },
     {
       "path": "launcher/package.py",
-      "bytes": 4017,
-      "sha256": "4e4d63dfebd71b1de69042680994b986a83575c4d658b63dfffaf28a684f85aa"
+      "bytes": 4020,
+      "sha256": "c0c4144508692e154c2cb31627e768314c314c3aa8b1b6c21d16667d51833596"
     },
     {
       "path": "launcher/Program.cs",
-      "bytes": 22778,
-      "sha256": "2b7d57e865bf2ff464e266203c5c33d2bff1bb9693ab9db0606f42fd4df79ec1"
+      "bytes": 24686,
+      "sha256": "a11fe64748e59c421f75d4ee9f68c2af61c000197dca16f692862a07c95de822"
     },
     {
       "path": "launcher/README.md",
-      "bytes": 3793,
-      "sha256": "d8156c69d1f15456fdecd2490e3f803a5da828c11630432f3aa58ee5fb46bc78"
+      "bytes": 5624,
+      "sha256": "d7181f54ba281710f9d5b35d278d5f524d32947407aaf73a62e4a2f00b92f2a6"
+    },
+    {
+      "path": "launcher/RecompLauncherIntegration.cs",
+      "bytes": 4121,
+      "sha256": "fb469e0cba7d2460dc0bce87986a440a26f9551e3c46877d985eae542f8b99f3"
     },
     {
       "path": "launcher/WindowChrome.cs",
@@ -98,8 +103,18 @@
     },
     {
       "path": "README.md",
-      "bytes": 3793,
-      "sha256": "d8156c69d1f15456fdecd2490e3f803a5da828c11630432f3aa58ee5fb46bc78"
+      "bytes": 5624,
+      "sha256": "d7181f54ba281710f9d5b35d278d5f524d32947407aaf73a62e4a2f00b92f2a6"
+    },
+    {
+      "path": "recomplauncher.json",
+      "bytes": 2695,
+      "sha256": "b806a234fe47c139688df2b9a47b8975fab96141f26fcb4cc62d47c76157e867"
+    },
+    {
+      "path": "ReSqueezed Launcher.exe",
+      "bytes": 2933760,
+      "sha256": "3c4adb16bb23f52312d46d12704dffa16ffd916c8c81cc4e49eefb276b3537cb"
     },
     {
       "path": "source/pipeline/LICENSE",
@@ -1553,8 +1568,8 @@
     },
     {
       "path": "source/ReSqueezed/assets/game_icon.rc.in",
-      "bytes": 24,
-      "sha256": "8d005333bdcc8f716af3f22a8a9f70aeb04e97b09abce0657d463078a57a3434"
+      "bytes": 508,
+      "sha256": "34d2eef692e09fba58442303b05afb580b5e9ff8bd8ee806ea62a43e647996cd"
     },
     {
       "path": "source/ReSqueezed/assets/recomp.ico",
@@ -1593,8 +1608,8 @@
     },
     {
       "path": "source/ReSqueezed/build-support/patches.json",
-      "bytes": 243407,
-      "sha256": "73413a36b49c5ace073aec0bcf398a140edd2997376ecd5f935762d27ca19584"
+      "bytes": 244672,
+      "sha256": "a1c0b72b909cdb63adc5b05f7267b7d1ec3dbf1f34516cfd9428d2dcd144fdda"
     },
     {
       "path": "source/ReSqueezed/CMakeLists.txt",
@@ -2168,8 +2183,8 @@
     },
     {
       "path": "source/xboxrecomp/src/input/input_core.c",
-      "bytes": 25512,
-      "sha256": "4e0c93d9ad015a2e0b2d502248bef192bc8981b4de0b99ab4658a797479ad8b4"
+      "bytes": 26200,
+      "sha256": "64305135600f397d78ce543eef46e2a7d5307ceeec296fd860f2cc92ef73583e"
     },
     {
       "path": "source/xboxrecomp/src/input/input_map.c",
@@ -2243,8 +2258,8 @@
     },
     {
       "path": "source/xboxrecomp/src/input/windows_gamepad.c",
-      "bytes": 7881,
-      "sha256": "977700de4d45c4cf9a129dc80e0b65e9ac5282593124b330903967d5609061d2"
+      "bytes": 7951,
+      "sha256": "7b3983f1be584902396af91781da6d13c76a3a9c0e42e9a3d8eaf8dfb1a1a27b"
     },
     {
       "path": "source/xboxrecomp/src/input/windows_gamepad.h",

@@ -37,7 +37,7 @@ def main():
     for directory in ("source", "launcher"):
         shutil.copytree(repo / directory, output / directory,
                         ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-    for name in ("README.md", ".gitignore", "THIRD-PARTY-NOTICES.txt"):
+    for name in ("README.md", ".gitignore", "THIRD-PARTY-NOTICES.txt", "recomplauncher.json"):
         shutil.copy2(repo / name, output / name)
     forbidden = {".xbe", ".iso", ".xiso", ".bik", ".dat", ".xbx", ".zbg", ".zlh", ".xbt", ".txb", ".wav", ".wma"}
     inventory = []
@@ -66,7 +66,7 @@ def main():
     with ZipFile(temporary, "w", ZIP_DEFLATED, compresslevel=6) as zip_file:
         for path in sorted(output.rglob("*")):
             if path.is_file():
-                zip_file.write(path, Path(output.name) / path.relative_to(output))
+                zip_file.write(path, path.relative_to(output))
     temporary.replace(archive)
     print(f"Built {archive} with {len(inventory)} reviewed files.")
 

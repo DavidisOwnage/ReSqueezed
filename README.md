@@ -1,6 +1,16 @@
 # ReSqueezed
 
-An unofficial Windows x64 launcher and compatibility runtime for the original Xbox retail release of Juiced.
+<a href="https://recomplauncher.com/game/resqueezed"><picture><source media="(prefers-color-scheme: dark)" srcset="https://recomplauncher.com/assets/press/launcher/badge-light.svg"><img alt="Get it on RecompLauncher" src="https://recomplauncher.com/assets/press/launcher/badge-dark.svg" height="48"></picture></a>
+
+An unofficial Windows x64 launcher and compatibility runtime for the original Xbox retail release of Juiced. Big thanks to sp00nznet for XboxRecomp!
+
+## Play with RecompLauncher
+
+1. Install ReSqueezed from the catalog and choose your Juiced Xbox USA / Europe retail ISO or extracted disc folder in **Easy Setup**.
+2. Run setup to download the verified build tools and build ReSqueezed locally. The game can play from the files it kept after setup.
+3. Use **Play** to start the game directly. RecompLauncher exposes aspect ratio, window mode, opening movies, saves and logs.
+
+Easy Setup checks for default.xbe. ReSqueezed then verifies the executable against the hashes below. The optional whole-disc verification badge uses the size and CRC32 of the [Redump USA / Europe ISO](https://data.spludlow.co.uk/redump/redump/Microsoft%20-%20Xbox/Juiced%20%28USA%2C%20Europe%29%20%28En%2CFr%2CDe%2CEs%2CIt%29). Rebuilt XISOs can still pass the executable check with a different disc CRC.
 
 ## Build your game
 
@@ -21,6 +31,14 @@ The launcher accepts the shared USA / Europe retail executable, including Englis
 The MD5 matches the shared retail release listed by [MobCat's Xbox title database](https://mobcat.zip/XboxIDs/). The local build also enforces SHA-256. Other revisions require their own compatibility verification.
 
 A successful build installs the extracted game, ReSqueezed.exe, Play ReSqueezed.exe, SDL, and a build log. Compiled game code is generated locally from the selected executable. Compatibility patches preserve the tested menu, display, graphics, performance, and controller fixes. Xbox controllers use XInput. DualShock 4 and DualSense use SDL directly and display the corresponding button symbols.
+
+## Update an existing install
+
+In RecompLauncher, install the update and choose **Build Now** when prompted. Setup rebuilds from the retained disc files. Your existing saves, backups, Faster startup setting and logs stay in the installation folder.
+
+For a manual update, extract the new ZIP into the same folder as your current **ReSqueezed Launcher.exe**, replacing the release files when prompted. Open the launcher and choose **Update**. Close the game before updating. The launcher replaces the game executable only after the build succeeds.
+
+Version 0.2a restores short crew-driver callouts and Respect dialogue and fixes the Workshop Dynamometer data display.
 
 ## Downloads
 

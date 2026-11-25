@@ -10,12 +10,17 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
-        if (args.Length == 3 && args[0] == "--build")
+        if (args.Length > 0 && (args[0] == "--prepare" || args[0] == "--play"))
+            return RecompLauncherIntegration.Run(args);
+
+        bool update = args.Length == 2 && args[0] == "--update";
+        if (update || (args.Length == 3 && args[0] == "--build"))
         {
             string log = Builder.NewLog();
             try
             {
-                Builder.Build(args[1], args[2], log, Console.WriteLine);
+                if (update) Builder.Update(args[1], log, Console.WriteLine);
+                else Builder.Build(args[1], args[2], log, Console.WriteLine);
                 return 0;
             }
             catch (Exception ex)
@@ -84,6 +89,7 @@ internal sealed partial class BuilderWindow : Form
     private bool updatingMods;
     private bool building;
     private string log;
+    private string deferredUpdate;
 
     internal BuilderWindow(string initialInput)
     {
@@ -154,10 +160,12 @@ internal sealed partial class BuilderWindow : Form
         input.Text = initialInput;
         destination.Text = Path.GetDirectoryName(Builder.ApplicationPath());
         build.Click += async (sender, e) => await BuildAsync();
-        play.Click += (sender, e) => {
+        play.Click += async (sender, e) => {
+            if (await OfferUpdateAsync()) return;
             try { Builder.Play(destination.Text, widescreen.Checked); }
             catch (Exception ex) { footer.Text = ex.Message; }
         };
+        Shown += async (sender, e) => await OfferUpdateAsync();
         status.TextChanged += (sender, e) => { if (building) footer.Text = status.Text; };
         openLog.Click += (sender, e) => ShowLog();
         input.TextChanged += (sender, e) => RefreshButtons();
@@ -214,7 +222,7 @@ internal sealed partial class BuilderWindow : Form
 
     private void CreateAboutPage()
     {
-        var body = PageBody(aboutPage, "ReSqueezed v0.1a");
+        var body = PageBody(aboutPage, "ReSqueezed v" + Builder.Release);
         body.Controls.Add(new Label {
             Text = "A Windows x64 recompilation of the original Xbox release of Juiced.",
             AutoSize = true, ForeColor = Muted
@@ -448,10 +456,13 @@ internal sealed partial class BuilderWindow : Form
     private void RefreshButtons()
     {
         bool installed = Builder.Installed(destination.Text);
-        build.Enabled = !building && !String.IsNullOrWhiteSpace(input.Text) && !installed;
+        bool update = installed && Builder.UpdateAvailable(destination.Text);
+        build.Text = update ? "Update" : "Build";
+        build.Enabled = !building && (update || (!installed && !String.IsNullOrWhiteSpace(input.Text)));
         play.Enabled = !building && installed;
         if (!building && log == null)
-            status.Text = installed ? "This installation is ready to play." : "Select your disc to build ReSqueezed.";
+            status.Text = update ? "Update to v" + Builder.Release + " using the installed disc files." :
+                installed ? "This installation is ready to play." : "Select your disc to build ReSqueezed.";
         fields.Enabled = !building;
         if (activePage == savesTab) RefreshSaves();
         if (activePage == modsTab) RefreshMods();
@@ -463,15 +474,36 @@ internal sealed partial class BuilderWindow : Form
         build.BackColor = build.Enabled ? Gold : inactive;
         openLog.BackColor = openLog.Enabled ? Surface : inactive;
         footer.ForeColor = play.Enabled ? Ready : Gold;
-        footer.Text = building ? status.Text : play.Enabled ? "●   All set   ·   Game ready to launch" :
+        footer.Text = building ? status.Text : update ? "●   Update available" : play.Enabled ? "●   All set   ·   Game ready to launch" :
             "●   Choose your disc on the Build page";
         homePage.Invalidate(true);
+    }
+
+    private async Task<bool> OfferUpdateAsync()
+    {
+        if (building || !Builder.UpdateAvailable(destination.Text)) return false;
+        string installation = Path.GetFullPath(destination.Text);
+        if (String.Equals(installation, deferredUpdate, StringComparison.OrdinalIgnoreCase)) return false;
+        var answer = MessageBox.Show(this,
+            "Rebuild the game locally to update to v" + Builder.Release +
+            "? This uses your installed disc files and keeps your career saves, backups and mods. Choose No to update later.",
+            "ReSqueezed update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information,
+            MessageBoxDefaultButton.Button2);
+        if (answer != DialogResult.Yes)
+        {
+            deferredUpdate = installation;
+            return false;
+        }
+        ShowPage(buildPage);
+        await BuildAsync();
+        return true;
     }
 
     private async Task BuildAsync()
     {
         string disc = input.Text.Trim();
         string install = destination.Text.Trim();
+        bool update = Builder.UpdateAvailable(install);
         building = true;
         RefreshButtons();
         status.Text = "Checking the input and build tools…";
@@ -481,8 +513,11 @@ internal sealed partial class BuilderWindow : Form
             File.WriteAllText(log, "");
             RefreshButtons();
             var messages = new Progress<string>(message => status.Text = message);
-            await Task.Run(() => Builder.Build(disc, install, log,
-                message => ((IProgress<string>)messages).Report(message)));
+            Action<string> report = message => ((IProgress<string>)messages).Report(message);
+            await Task.Run(() => {
+                if (update) Builder.Update(install, log, report);
+                else Builder.Build(disc, install, log, report);
+            });
         }
         catch (Exception ex)
         {
@@ -493,7 +528,7 @@ internal sealed partial class BuilderWindow : Form
         {
             building = false;
             RefreshButtons();
-            if (Builder.Installed(install)) ShowPage(homePage);
+            if (Builder.Installed(install) && !Builder.UpdateAvailable(install)) ShowPage(homePage);
         }
     }
 }
